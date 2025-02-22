@@ -9,7 +9,8 @@ const usersRouter = require("./routes/usersRouter");
 
 const db = require("./config/mongoose-connection");
 const user = require("./models/user-model");
-
+const product = require("./models/product-model");
+const owner = require("./models/owner-model");
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -18,9 +19,7 @@ app.set("view engione","ejs");
 
 app.use("/owners",ownersRouter);
 app.use("/users",usersRouter);  
-app.use("/products",productsRouter);
-
-
+app.use("/products",productsRouter); 
 
 
 
