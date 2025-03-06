@@ -21,8 +21,9 @@ if(process.env.NODE_ENV=="development"){
 }
 
 
-router.get("/",function(req,res){
-    res.send("hello its working");
+router.get("/admin",function(req,res){
+     let success = req.flash("success")
+    res.render("createproducts",{success:success});
 })
 
 //setting environment variable to development  
