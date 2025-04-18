@@ -4,6 +4,11 @@ const vendorSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
+    isApproved: {
+        type: Boolean,
+        default: false
+    },
+   
     requests: [
         {
             productName: String,

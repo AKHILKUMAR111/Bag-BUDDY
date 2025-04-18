@@ -3,7 +3,7 @@ const productModel = require("../models/product-model"); // Import Product model
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/generatetoken");
 const ownerModel = require("../models/owner-model");
-
+const vendorModel = require("../models/vendor-model");
 
 module.exports.registerUser = async function (req, res) {
     try {
@@ -108,33 +108,71 @@ module.exports.logoutadmin = function(req,res){
 
 
 //Vendor
-module.exports.loginVendor=async function(req,res){
+module.exports.loginVendor = async function (req, res) {
     try {
-        let { email, password } = req.body;
-        
-        // Use await to ensure the admin is fetched correctly
-        let vendor = await vendor.findOne({ email });
+        const { email, password } = req.body;
 
-        if (!admin) {
-            return res.status(400).json({ error: "Invalid credentials 1" });
+        const vendor = await vendorModel.findOne({ email });
+        if (!vendor) {
+            return res.status(400).send("Vendor does not exist.");
         }
 
-        bcrypt.compare(password, admin.password, async function(err, result) {
-            if (err) {
-                return res.status(500).json({ error: "Internal server Error" });
-            } else {
-                if (!result) {
-                    return res.status(400).json({ error: "Invalid credentials 2" });
-                }
-                let admintoken = generateToken(admin);
-                res.cookie("admintoken", admintoken, { httpOnly: true });
-    
-                res.redirect("/owners/adminlogin"); // Pass products to shop.ejs
-            }
+        const isMatch = await bcrypt.compare(password, vendor.password);
+        if (!isMatch) {
+            return res.status(401).send("Invalid credentials.");
+        }
+
+        if (!vendor.isApproved) {
+            return res.render("not-approved", {
+                message: "Your vendor request has not been approved by the admin yet.",
+            });
+        }
+
+        // Vendor is verified, login successful
+        const token = generateToken(vendor);
+        res.cookie("vendorToken", token, { httpOnly: true });
+
+        res.redirect("/vendorshop");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error.");
+    }
+};
+
+module.exports.registerVendor = async function (req, res) {
+    try {
+        const { fullname, email, password } = req.body;
+
+        // Check if vendor already exists
+        let existingVendor = await vendorModel.findOne({ email });
+        if (existingVendor) {
+            return res.status(400).json({ error: "Vendor already exists" });
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create unverified vendor entry
+        const vendor = new vendorModel({
+            name: fullname,
+            email,
+            password: hashedPassword,
+            isVerified: false, // default
+            verificationCode: null // will be set after admin approves
         });
+
+        await vendor.save();
+
+        // Optional: notify admin by email (or handle request listing on admin panel)
+        // await sendMail(adminEmail, "New Vendor Registration Request", `Vendor: ${fullname}, Email: ${email}`);
+
+       res.render("register-success",);
 
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
+
+

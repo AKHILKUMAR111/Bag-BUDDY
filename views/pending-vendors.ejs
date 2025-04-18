@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pending Vendors</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 relative">
+
+  <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Pending Vendor Approvals</h1>
+
+  <% if (vendors.length === 0) { %>
+    <p class="text-center text-lg text-gray-600">No pending vendors right now.</p>
+  <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="vendor-list">
+      <% vendors.forEach(vendor => { %>
+        <div class="bg-white shadow-lg rounded-2xl p-6 flex flex-col justify-between" id="vendor-<%= vendor._id %>">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2"><%= vendor.name %></h2>
+            <p class="text-gray-600 mb-2"><strong>Email:</strong> <%= vendor.email %></p>
+            <p class="text-sm text-gray-500 mb-4">Requested on: <%= vendor.createdAt?.toLocaleDateString() %></p>
+          </div>
+          <button
+            onclick="approveVendor('<%= vendor._id %>')"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl w-full transition-all duration-200 ease-in-out"
+          >
+            Approve Vendor
+          </button>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <!-- Toast Container -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+    Vendor approved successfully!
+  </div>
+
+  <script>
+    async function approveVendor(vendorId) {
+      try {
+        const res = await fetch(`/owners/vendors/approve/${vendorId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (res.ok) {
+          // Remove card
+          const card = document.getElementById(`vendor-${vendorId}`);
+          if (card) card.remove();
+
+          // Show toast
+          const toast = document.getElementById("toast");
+          toast.classList.remove("opacity-0", "pointer-events-none");
+          toast.classList.add("opacity-100");
+
+          setTimeout(() => {
+            toast.classList.remove("opacity-100");
+            toast.classList.add("opacity-0", "pointer-events-none");
+          }, 3000);
+        } else {
+          const error = await res.text();
+          alert("Error approving vendor: " + error);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Failed to approve vendor. Please try again.");
+      }
+    }
+  </script>
+
+</body>
+</html>

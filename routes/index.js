@@ -3,7 +3,8 @@ const router = express.Router();
 const isLoggedIn = require("../middlewares/isLoggedin");
 const productModel = require("../models/product-model"); // Import Product model
 const userModel = require("../models/user-model");
-
+const isLoggedinVendor = require("../middlewares/isLoggedinvendor");
+const vendorModel = require("../models/vendor-model");
 router.get("/",function(req,res){
 
     let error = req.flash("error");
@@ -51,7 +52,26 @@ router.get("/shop", isLoggedIn, async function(req, res) {
         availability
     });
 });
- 
+
+router.get("/vendorshop", isLoggedinVendor, async (req, res) => {
+    try {
+      const vendor = await vendorModel.findById(req.vendor._id).lean();
+  
+      if (!vendor) {
+        return res.status(404).send("Vendor not found");
+      }
+  
+      const requests = vendor.requests || [];
+  
+      res.render("vendorshop", { vendorName: vendor.name, requests });
+    } catch (err) {
+      console.error("Error loading vendor shop:", err);
+      res.status(500).send("Something went wrong");
+    }
+  });
+  
+  
+
 //redirecting to cart after some calculations of bill 
 router.get("/cart", isLoggedIn, async function(req, res) {
     try {

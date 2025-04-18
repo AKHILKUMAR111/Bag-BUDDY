@@ -4,13 +4,13 @@ const upload = require("../config/multer-config");
 const productModel = require("../models/product-model");
 const isLoggedInadmin = require("../middlewares/isLoggedinadmin");
 const isLoggedin = require("../middlewares/isLoggedin");
-
+const vendorModel = require("../models/vendor-model"); //for vendor verification
 // Create Product Route
-router.post("/createproduct", upload.single("image"), async function (req, res) {
+router.post("/createproduct/admin", upload.single("image"), async function (req, res) {
   try {
-    let { image, name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
+    const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
 
-    let product = await productModel.create({
+    await productModel.create({
       image: req.file.buffer,
       name,
       price,
@@ -19,12 +19,50 @@ router.post("/createproduct", upload.single("image"), async function (req, res) 
       panelcolor,
       textcolor,
     });
-    req.flash("success", "Product created successfully");
+
+    req.flash("success", "Product created successfully by admin");
     res.redirect("/products/create");
   } catch (err) {
     res.send(err.message);
   }
 });
+
+router.post("/createproduct/vendor", upload.single("image"), async function (req, res) {
+  try {
+    const { name, price, discount, bgcolor, panelcolor, textcolor, vendorId, requestId } = req.body;
+
+    // Create the product
+    await productModel.create({
+      image: req.file.buffer,
+      name,
+      price,
+      discount,
+      bgcolor,
+      panelcolor,
+      textcolor,
+    });
+
+    // ✅ Update vendor request status to "Approved"
+    if (vendorId && requestId) {
+      const vendor = await vendorModel.findById(vendorId);
+      if (vendor) {
+        const request = vendor.requests.id(requestId);
+        if (request) {
+          request.status = "Approved"; // ✅ Capitalized to match enum
+          await vendor.save();
+        }
+      }
+    }
+
+    req.flash("success", "Vendor product created and request approved");
+    res.redirect("/products/create");
+  } catch (err) {
+    res.send(err.message);
+  }
+});
+
+
+
 
 // Render Create Product Page
 router.get("/create", isLoggedInadmin, function (req, res) {
@@ -43,7 +81,7 @@ router.get("/create", isLoggedInadmin, function (req, res) {
   //conclusion:  flsh messaeges set on current route are used in next route and it have two arguments first: type of message and second: message  
   //why use this 
     //if i want a message to be displayed when i first visit this route from other route but not ehn i reload it again
-  res.render("createproducts", { success: success, loggedin: false, create: true, admin: true });
+  res.render("adminCreateproducts", { success: success, loggedin: false, create: true, admin: true });
 });
 
 // **SEARCH FUNCTIONALITY**

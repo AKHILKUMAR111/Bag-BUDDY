@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendor Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center p-6 bg-white shadow-md">
+    <h1 class="text-3xl font-bold text-gray-800">Vendor Dashboard</h1>
+    <button id="toggleSidebar" class="text-3xl">&#9776;</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="p-6 max-w-3xl mx-auto">
+    <!-- Request to Add Product -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Request to Add a Product</h2>
+      <form id="requestForm" action="/vendors/requestProduct" method="POST" class="space-y-4">
+        <input type="text" name="name" placeholder="Product Name" required class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <input type="number" name="price" placeholder="Price" required class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <input type="number" name="discount" placeholder="Discount (%)" class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <input type="text" name="bgColor" placeholder="Background Color (e.g., #f3f4f6)" class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <input type="text" name="panelColor" placeholder="Panel Color" class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <input type="text" name="textColor" placeholder="Text Color" class="w-full p-3 border border-gray-300 rounded-lg"/>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sidebar Slide Panel -->
+  <div id="sidebar" class="fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50 overflow-y-auto">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-gray-800">Requested Products</h2>
+      <button id="closeSidebar" class="text-2xl text-gray-700">&times;</button>
+    </div>
+    <div class="p-4 space-y-4">
+      <% requests.forEach(request => { %>
+        <div class="bg-white rounded-xl shadow p-4 relative border">
+          <h3 class="text-lg font-semibold text-gray-800 mb-1"><%= request.productName %></h3>
+          <p class="text-gray-600 text-sm">Price: ₹<%= request.productPrice %></p>
+          <p class="text-gray-600 text-sm">Discount: <%= request.discount %>%</p>
+          <% if (request.status === "Approved") { %>
+            <span class="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">Approved</span>
+          <% } else if (request.status === "Rejected") { %>
+            <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">Rejected</span>
+          <% } else { %>
+            <span class="absolute top-4 right-4 bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">Pending</span>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("toggleSidebar");
+    const closeBtn = document.getElementById("closeSidebar");
+
+    toggleBtn.addEventListener("click", () => sidebar.classList.remove("translate-x-full"));
+    closeBtn.addEventListener("click", () => sidebar.classList.add("translate-x-full"));
+
+    // Reset form after submit
+    const form = document.getElementById("requestForm");
+    form.addEventListener("submit", function () {
+      setTimeout(() => form.reset(), 100); // Let server handle redirect, then reset
+    });
+  </script>
+</body>
+</html>
