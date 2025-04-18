@@ -1,59 +1,152 @@
 <%- include('./partials/header') %>
 
-    <% if(success.length>0){ %>
-        <div class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
-            <span class="inline-block mt-1 mb-1 text-white">
-                <%= success %>
-            </span>
-        </div>
-        <% } %>
-    
-    <div class="w-full h-screen flex items-start px-20 py-20">
-        <div class="w-[25%] flex h-screen flex-col items-start">
-            <div class="flex items-center gap-2">
-                <h3>sort by</h3>
-                <form action="/shop">
-                    <select class="border-[1px] px-2 py-1" name="sortby" id="">
-                        <option value="popular">Popular</option>
-                        <option value="newest">Newest</option>
+<% if(success.length>0){ %>
+    <div class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
+        <span class="inline-block mt-1 mb-1 text-white">
+            <%= success %>
+        </span>
+    </div>
+<% } %>
+
+<div class="relative w-full h-screen flex items-start px-20 py-20">
+    <!-- Background Dimming Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 z-40 hidden transition-opacity duration-500 ease-in-out"></div>
+
+    <!-- Filter Panel -->
+    <div class="w-[25%] flex h-screen flex-col items-start">
+        <button class="text-left text-lg font-semibold mb-6" onclick="toggleFilterPanel()">
+            Filter
+        </button>
+
+        <!-- Slide-in Filter Panel -->
+        <div id="filterPanel" class="fixed top-0 left-0 w-[45%] h-full bg-white rounded-r-2xl z-50 p-6 shadow-lg transform -translate-x-full transition-transform ease-in-out duration-500 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Filter Options</h2>
+                <button onclick="toggleFilterPanel()" class="text-gray-500 text-2xl font-bold">&times;</button>
+            </div>
+
+            <form action="/filter" method="GET" id="filterForm">
+                <!-- Sort By -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Sort By:</label>
+                    <select class="border border-gray-300 rounded-md px-3 py-2 w-full" name="sortby">
+                        <option value="price" <%= sortby === 'price' ? 'selected' : '' %>>Price: Low to High</option>
+                        <option value="-price" <%= sortby === '-price' ? 'selected' : '' %>>Price: High to Low</option>
                     </select>
-                </form>
-            </div>
-            <div class="flex flex-col mt-20">
-                <a class="block w-fit mb-2" href="">New Collection</a>
-                <a class="block w-fit mb-2" href="">All Products</a>
-                <a class="block w-fit mb-2" href="">Discounted Products</a>
-            </div>
-            <div class="mt-32">
-                <a class="block w-fit mb-2" href="">Filter by :</a>
-                <a class="block w-fit mb-2" href="">Availability</a>
-                <a class="block w-fit mb-2" href="">Discount</a>
-            </div>
-        </div>
-        <div class="w-[75%] flex flex-col gap-5 h-screen">
-            <div class="flex items-start gap-5">
-                <% products.forEach(function(product){ %>
-                    <div class="w-60">
-                        <div class="w-full h-52 flex items-center justify-center bg-[<%= product.bgcolor %>]">
-                            <img class="h-[12rem]" src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
-                                alt="">
-                        </div>
-                        <div
-                            class="flex justify-between bg-[<%= product.panelcolor %>] items-center px-4 py-4 text-[<%= product.textcolor %>]">
-                            <div>
-                                <h3>
-                                    <%= product.name %>
-                                </h3>
-                                <h4>₹ <%= product.price %>
-                                </h4>
-                            </div>
-                            <a class="w-7 h-7 flex items-center justify-center rounded-full bg-white" href="/addtocart/<%=product._id%>">
-                                <i class="ri-add-line"></i>
-                            </a>
-                        </div>
+                </div>
+
+                <!-- Bag Type -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Bag Type:</label>
+                    <select name="type" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                        <option value="">All</option>
+                        <option value="Backpack" <%= type === 'Backpack' ? 'selected' : '' %>>Backpack</option>
+                        <option value="Sling" <%= type === 'Sling' ? 'selected' : '' %>>Sling</option>
+                        <option value="Tote" <%= type === 'Tote' ? 'selected' : '' %>>Tote</option>
+                        <option value="Duffel" <%= type === 'Duffel' ? 'selected' : '' %>>Duffel</option>
+                    </select>
+                </div>
+
+                <!-- Color -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Color:</label>
+                    <select name="color" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                        <option value="">All</option>
+                        <option value="Black" <%= color === 'Black' ? 'selected' : '' %>>Black</option>
+                        <option value="Brown" <%= color === 'Brown' ? 'selected' : '' %>>Brown</option>
+                        <option value="Tan" <%= color === 'Tan' ? 'selected' : '' %>>Tan</option>
+                    </select>
+                </div>
+
+                <!-- Material -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Material:</label>
+                    <select name="material" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                        <option value="">All</option>
+                        <option value="Leather" <%= material === 'Leather' ? 'selected' : '' %>>Leather</option>
+                        <option value="Canvas" <%= material === 'Canvas' ? 'selected' : '' %>>Canvas</option>
+                        <option value="Nylon" <%= material === 'Nylon' ? 'selected' : '' %>>Nylon</option>
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Price Range (₹):</label>
+                    <div class="flex gap-2">
+                        <input type="number" name="minPrice" placeholder="Min" value="<%= minPrice %>" class="w-1/2 border border-gray-300 rounded-md px-3 py-2">
+                        <input type="number" name="maxPrice" placeholder="Max" value="<%= maxPrice %>" class="w-1/2 border border-gray-300 rounded-md px-3 py-2">
                     </div>
-                    <% }) %>
-            </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Availability:</label>
+                    <select name="availability" class="border border-gray-300 rounded-md px-3 py-2 w-full">
+                        <option value="">All</option>
+                        <option value="in" <%= availability === 'in' ? 'selected' : '' %>>In Stock</option>
+                        <option value="out" <%= availability === 'out' ? 'selected' : '' %>>Out of Stock</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-between gap-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md w-full">See Results</button>
+                    <a href="/shop" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md w-full text-center">Clear All</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Optional Static Links -->
+        <div class="flex flex-col mt-20">
+            <a class="block w-fit mb-2" href="">New Collection</a>
+            <a class="block w-fit mb-2" href="">All Products</a>
+            <a class="block w-fit mb-2" href="">Discounted Products</a>
         </div>
     </div>
-    <%- include('./partials/footer') %>
+
+    <!-- Product Grid -->
+    <div class="w-[75%] flex flex-col gap-5 h-screen">
+        <div class="flex items-start gap-5 flex-wrap">
+            <% products.forEach(function(product){ %>
+                <div class="w-60 relative">
+                    <% if (product.discount > 0) { %>
+                        <div class="absolute top-2 left-2 z-10 text-green-900 text-sm font-bold px-2 py-1 rounded-md bg-gradient-to-r from-green-300 via-green-100 to-green-300 shadow-lg animate-pulse backdrop-blur-md bg-opacity-70">
+                            -<%= product.discount %>%
+                        </div>
+                    <% } %>
+                    <div class="w-full h-52 flex items-center justify-center bg-[<%= product.bgcolor %>] rounded-t-lg overflow-hidden">
+                        <img class="h-[12rem]" src="data:image/jpeg;base64,<%= product.image.toString('base64') %>" alt="">
+                    </div>
+                    <div class="flex justify-between bg-[<%= product.panelcolor %>] items-center px-4 py-4 text-[<%= product.textcolor %>] rounded-b-lg">
+                        <div>
+                            <h3><%= product.name %></h3>
+                            <h4>₹ <%= product.price %></h4>
+                        </div>
+                        <a class="w-7 h-7 flex items-center justify-center rounded-full bg-white" href="/addtocart/<%= product._id %>">
+                            <i class="ri-add-line"></i>
+                        </a>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleFilterPanel() {
+        const panel = document.getElementById('filterPanel');
+        const overlay = document.getElementById('overlay');
+
+        const isOpen = !panel.classList.contains('-translate-x-full');
+        if (isOpen) {
+            panel.classList.remove('translate-x-0');
+            panel.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        } else {
+            panel.classList.remove('-translate-x-full');
+            panel.classList.add('translate-x-0');
+            overlay.classList.remove('hidden');
+        }
+    }
+</script>
+
+<%- include('./partials/footer') %>

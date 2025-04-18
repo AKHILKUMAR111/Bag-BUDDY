@@ -2,6 +2,8 @@ const userModel = require("../models/user-model");
 const productModel = require("../models/product-model"); // Import Product model
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/generatetoken");
+const ownerModel = require("../models/owner-model");
+
 
 module.exports.registerUser = async function (req, res) {
     try {
@@ -61,8 +63,78 @@ module.exports.loginUser = async function (req, res) {
     }
 };
 
-
 module.exports.logout = function(req,res){
     res.cookie("token", "");
     res.redirect("/");
-};  
+}; 
+
+
+//ADMIN
+module.exports.loginadmin = async function(req, res) {
+    try {
+        let { email, password } = req.body;
+        
+        // Use await to ensure the admin is fetched correctly
+        let admin = await ownerModel.findOne({ email });
+
+        if (!admin) {
+            return res.status(400).json({ error: "Invalid credentials 1" });
+        }
+
+        bcrypt.compare(password, admin.password, async function(err, result) {
+            if (err) {
+                return res.status(500).json({ error: "Internal server Error" });
+            } else {
+                if (!result) {
+                    return res.status(400).json({ error: "Invalid credentials 2" });
+                }
+                let admintoken = generateToken(admin);
+                res.cookie("admintoken", admintoken, { httpOnly: true });
+    
+                res.redirect("/owners/adminlogin"); // Pass products to shop.ejs
+            }
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+module.exports.logoutadmin = function(req,res){
+    res.clearCookie("admintoken");
+    res.redirect("/owners/admin");
+}; 
+
+
+//Vendor
+module.exports.loginVendor=async function(req,res){
+    try {
+        let { email, password } = req.body;
+        
+        // Use await to ensure the admin is fetched correctly
+        let vendor = await vendor.findOne({ email });
+
+        if (!admin) {
+            return res.status(400).json({ error: "Invalid credentials 1" });
+        }
+
+        bcrypt.compare(password, admin.password, async function(err, result) {
+            if (err) {
+                return res.status(500).json({ error: "Internal server Error" });
+            } else {
+                if (!result) {
+                    return res.status(400).json({ error: "Invalid credentials 2" });
+                }
+                let admintoken = generateToken(admin);
+                res.cookie("admintoken", admintoken, { httpOnly: true });
+    
+                res.redirect("/owners/adminlogin"); // Pass products to shop.ejs
+            }
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}

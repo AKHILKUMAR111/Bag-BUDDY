@@ -8,24 +8,46 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="font-['helvetica_now_display']">
-    <nav class="w-full flex justify-between px-5 py-3">
+    <nav class="w-full flex justify-between px-5 py-3 items-center">
         <h3 class="text-xl">Scatch</h3>
+
+       
+
         <% var loggedin = typeof loggedin !=="undefined" ? loggedin : true %>
         <% if(loggedin){ %>
-
+             <!-- Search Bar -->
+        <% if(!cart){%>
+            <form action="/products/search" method="GET" class="flex items-center gap-2">
+                <input type="text" name="query" placeholder="Search products..." 
+                    class="border border-gray-300 px-3 py-1 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
+                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded-lg">
+                    <i class="ri-search-line"></i>
+                </button>
+            </form>
+        <%}%>
         <div class="flex gap-5">
             <a href="/shop">Shop</a>
             <a href="/cart">Cart</a>
             <a href="">My Account</a>
             <a class="text-red-500" href="/users/logout">Logout</a>
         </div>
+        <% } else if(admin && create){ %>
+        <div>
+            <a href="/owners/adminlogin">HOME</a>
+            <a class="text-red-500" href="/owners/logout">Logout</a>
+        </div>
+        <% } else if(admin ){ %>
+        <div>
+            <a class="text-red-500" href="/owners/logout">Logout</a>
+        </div>
+        <% } else if(user) {%>
+        <div>
+            <a href="/">User</a>
+        </div>
         <% } else { %>
         <div>
             <a href="/owners/admin">Admin</a>
         </div>
         <% } %>
-    </nav>
-    
     </nav>

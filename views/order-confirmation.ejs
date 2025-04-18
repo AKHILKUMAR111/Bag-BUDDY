@@ -1,0 +1,17 @@
+
+
+<% if(success.length>0){ %>
+    <div class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
+        <span class="inline-block mt-1 mb-1 text-white">
+            <%= success %>
+        </span>
+    </div>
+    <% } %>
+<div class="w-full h-screen flex flex-col items-center justify-center">
+    <h2 class="text-3xl font-bold text-green-600">Payment Successful! ✅</h2>
+    <p class="text-lg mt-2">Your order has been placed successfully.</p>
+    
+    <a href="/shop" class="mt-5 px-5 py-2 bg-blue-600 text-white rounded">Continue Shopping</a>
+</div>
+
+<%- include('./partials/footer') %>
