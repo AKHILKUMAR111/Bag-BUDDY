@@ -1,3 +1,15 @@
+
+
+<script>
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        const inputs = document.querySelectorAll("input[type='text'], input[type='password'], input[type='email'], input[type='number']");
+        inputs.forEach(input => input.value = "");
+      }
+    });
+  </script>
+  
+
 </body>
 
 </html>

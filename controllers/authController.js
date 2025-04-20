@@ -110,6 +110,8 @@ module.exports.logoutadmin = function(req,res){
 //Vendor
 module.exports.loginVendor = async function (req, res) {
     try {
+      
+       
         const { email, password } = req.body;
 
         const vendor = await vendorModel.findOne({ email });
@@ -123,7 +125,7 @@ module.exports.loginVendor = async function (req, res) {
         }
 
         if (!vendor.isApproved) {
-            return res.render("not-approved", {
+            return res.render("Vendor/not-approved", {
                 message: "Your vendor request has not been approved by the admin yet.",
             });
         }
@@ -167,12 +169,17 @@ module.exports.registerVendor = async function (req, res) {
         // Optional: notify admin by email (or handle request listing on admin panel)
         // await sendMail(adminEmail, "New Vendor Registration Request", `Vendor: ${fullname}, Email: ${email}`);
 
-       res.render("register-success",);
+       res.render("Vendor/register-success",);
 
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+module.exports.logoutVendor = function(req,res){
+    res.cookie("vendorToken", "");
+    res.redirect("/vendors/vendor");
+}; 
 
 

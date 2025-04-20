@@ -37,7 +37,7 @@ router.get("/shop", isLoggedIn, async function(req, res) {
     const products = await productModel.find();
 
     let success = req.flash("success");
-    res.render("shop", {
+    res.render("User/shop", {
         products,
         success,
         loggedin: true,
@@ -55,6 +55,14 @@ router.get("/shop", isLoggedIn, async function(req, res) {
 
 router.get("/vendorshop", isLoggedinVendor, async (req, res) => {
     try {
+          res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+          res.set("Pragma", "no-cache");
+          res.set("Expires", "0");
+        
+          // Check if the user is authenticated
+          if (!req.cookies.vendorToken) {
+              return res.redirect("/");
+          }
       const vendor = await vendorModel.findById(req.vendor._id).lean();
   
       if (!vendor) {
@@ -63,7 +71,7 @@ router.get("/vendorshop", isLoggedinVendor, async (req, res) => {
   
       const requests = vendor.requests || [];
   
-      res.render("vendorshop", { vendorName: vendor.name, requests });
+      res.render("Vendor/vendorshop", { vendorName: vendor.name, requests });
     } catch (err) {
       console.error("Error loading vendor shop:", err);
       res.status(500).send("Something went wrong");
@@ -79,7 +87,7 @@ router.get("/cart", isLoggedIn, async function(req, res) {
         let user = await userModel.findOne({ email: req.user.email }).populate("cart.product");
 
         if (!user || !user.cart.length) {
-            return res.render("cart", { user, bill: 0,cart:true });
+            return res.render("User/cart", { user, bill: 0,cart:true });
         }
         
         // Calculate total bill
@@ -104,7 +112,7 @@ router.get("/cart", isLoggedIn, async function(req, res) {
         console.log("Final Bill:", bill);
         
 
-        res.render("cart", { user, bill,cart:true });
+        res.render("User/cart", { user, bill,cart:true });
     } catch (err) {
         console.error("Cart Error:", err);
         req.flash("error", "Error fetching cart details");
@@ -212,7 +220,7 @@ router.get("/payment", isLoggedIn, async function (req, res) {
         let user = await userModel.findOne({ email: req.user.email }).populate("cart.product");
 
         if (!user || !user.cart.length) {
-            return res.render("payment", { user, bill: 0 });
+            return res.render("User/payment", { user, bill: 0 });
         }
 
         // Calculate total bill
@@ -231,7 +239,7 @@ router.get("/payment", isLoggedIn, async function (req, res) {
             bill += itemTotal;
         }
 
-        res.render("payment", { user, bill });
+        res.render("User/payment", { user, bill });
     } catch (err) {
         console.error("Payment Error:", err);
         req.flash("error", "Error fetching payment details");
@@ -272,7 +280,7 @@ router.post("/process-payment", isLoggedIn, async function (req, res) {
 
         // Process different payment methods
         if (paymentMethod === "UPI" || paymentMethod === "Credit Card") {
-            return res.render("payment-gateway", { amount, paymentMethod });
+            return res.render("User/payment-gateway", { amount, paymentMethod });
         } else if (paymentMethod === "Cash on Delivery") {
             // Place the order immediately for COD
             // await placeOrder(user, calculatedBill, "COD");
@@ -335,7 +343,7 @@ router.post("/confirm-payment", isLoggedIn, async (req, res) => {
 
 router.get("/order-confirmation", isLoggedIn, (req, res) => {
    var success= req.flash("success");
-    res.render("order-confirmation",{success:success});
+    res.render("User/order-confirmation",{success:success});
 });
 
 //sorting route

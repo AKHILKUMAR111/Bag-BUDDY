@@ -11,7 +11,14 @@
   <!-- Top Bar -->
   <div class="flex justify-between items-center p-6 bg-white shadow-md">
     <h1 class="text-3xl font-bold text-gray-800">Vendor Dashboard</h1>
-    <button id="toggleSidebar" class="text-3xl">&#9776;</button>
+    <div class="flex items-center gap-4">
+      <form action="/vendors/logout" method="get">
+        <button type="submit" class="text-sm bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+          Logout
+        </button>
+      </form>
+      <button id="toggleSidebar" class="text-3xl">&#9776;</button>
+    </div>
   </div>
 
   <!-- Main Content -->

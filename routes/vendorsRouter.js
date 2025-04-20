@@ -5,19 +5,22 @@ const vendorModel = require("../models/vendor-model");
 const {
     registerVendor,
     loginVendor,
-    logout,
+    logoutVendor,
 }= require("../controllers/authController");
 
 
-router.get("/vendor",function(req,res){
 
-    let error = req.flash("error");
-    let success = req.flash("success")
-   res.render("vender-login",{error,success,loggedin:false,admin:false,create:false,user:true});
-  });
 
 router.post("/login",loginVendor);
 router.post("/register",registerVendor);
+router.get("/logout",logoutVendor);
+
+router.get("/vendor",function(req,res){
+
+  let error = req.flash("error");
+  let success = req.flash("success")
+ res.render("Vendor/vender-login",{error,success,loggedin:false,admin:false,create:false,user:true});
+});
 
 router.post("/requestProduct", isLoggedinVendor, async (req, res) => {
     try {
@@ -46,7 +49,7 @@ router.post("/requestProduct", isLoggedinVendor, async (req, res) => {
     }
   });
   
-  // Assuming you are using Express.js
+  
 router.get('/request-confirmation/:vendorId', async (req, res) => {
     try {
       // Find the vendor by their ID
@@ -56,7 +59,7 @@ router.get('/request-confirmation/:vendorId', async (req, res) => {
       const latestRequest = vendor.requests[vendor.requests.length - 1];
   
       // Render the confirmation page with the latest request details
-      res.render('request-confirmation', { request: latestRequest });
+      res.render('Vendor/request-confirmation', { request: latestRequest });
     } catch (err) {
       console.error("Error retrieving request:", err);
       res.status(500).send("Server error");

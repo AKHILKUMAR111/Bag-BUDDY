@@ -42,7 +42,7 @@ router.get("/admin",function(req,res){
 
 
      let success = req.flash("success")
-    res.render("owner-login",{success,loggedin:false,admin:false,create:false,user:true});
+    res.render("Admin/owner-login",{success,loggedin:false,admin:false,create:false,user:true});
 })
 
 router.post("/adminlogin",loginadmin);
@@ -58,7 +58,7 @@ router.get("/adminlogin",isLoggedInadmin,function(req,res){
       return res.redirect("/owners/admin");
   }
                 let success = req.flash("success","welcome to cart")
-                res.render("admin",{loggedin:false,admin:true,success,create:false});
+                res.render("Admin/admin",{loggedin:false,admin:true,success,create:false});
    
 })
 
@@ -72,7 +72,7 @@ router.get("/logout",logoutadmin);
 router.get("/vendors", isLoggedInadmin, async (req, res) => {
   const vendors = await vendorModel.find({ isApproved: false });
 
-  res.render("pending-vendors", { vendors });
+  res.render("Admin/pending-vendors", { vendors });
 });
 
 router.post("/vendors/approve/:id", isLoggedInadmin, async (req, res) => {
@@ -122,7 +122,7 @@ router.get('/product-requests', isLoggedInadmin, async (req, res) => {
     });
 
     // Pass only the pending requests to the view
-    res.render('requests', { requests });
+    res.render('Admin/requests', { requests });
   } catch (err) {
     console.error('Error fetching requests:', err);
     res.status(500).send('Server error');
@@ -137,7 +137,7 @@ router.get('/product-requests', isLoggedInadmin, async (req, res) => {
       const request = vendor.requests.id(req.params.requestId);
       let success = req.flash("Product approved");
       // Render the product creation page with the request data pre-filled
-      res.render('vendorCreateproducts', {
+      res.render('Admin/vendorCreateproducts', {
         productName: request.productName,
         productPrice: request.productPrice,
         discount: request.discount,

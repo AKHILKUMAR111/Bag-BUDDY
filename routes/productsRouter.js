@@ -81,7 +81,7 @@ router.get("/create", isLoggedInadmin, function (req, res) {
   //conclusion:  flsh messaeges set on current route are used in next route and it have two arguments first: type of message and second: message  
   //why use this 
     //if i want a message to be displayed when i first visit this route from other route but not ehn i reload it again
-  res.render("adminCreateproducts", { success: success, loggedin: false, create: true, admin: true });
+  res.render("Admin/adminCreateproducts", { success: success, loggedin: false, create: true, admin: true });
 });
 
 // **SEARCH FUNCTIONALITY**
@@ -140,7 +140,7 @@ router.get("/search",isLoggedin, async (req, res) => {
     const availability = req.query.availability || '';
 
     
-      res.render("shop", { products: searchProducts,       success,
+      res.render("User/shop", { products: searchProducts,       success,
         loggedin: true,
         cart: false,
         sortby,
