@@ -1,31 +1,35 @@
 const mongoose = require("mongoose");
 const config = require("config");
-
 const dbgr = require("debug")("development:mongoose");
-// anyname can be written above not necessarily development or mongoose
-// but it should be same in app.js
 
 // Enable mongoose debug mode to see queries
 mongoose.set("debug", true);
 
+// Determine the MongoDB URI: prefer environment variable, fallback to config
+let uri;
+if (process.env.MONGODB_URI) {
+  uri = process.env.MONGODB_URI;
+} else {
+  try {
+    uri = config.get("MONGODB_URI");
+  } catch (err) {
+    console.error("❌ No MongoDB URI found in environment variables or config. Exiting.");
+    process.exit(1);
+  }
+}
+
+// Connect to MongoDB
 mongoose
-  .connect(config.get("MONGODB_URI"), {
+  .connect(uri, {
     dbName: "Clusters" // Specify the database name explicitly
-  })    // using ``(backtick) and $ to put dynamic values
-  .then(function () {
-    console.log("Connected to MongoDB Atlas ✅"); // Ensure a clear success message
-    dbgr("Connected to database");      // this debug msg will not be shown until you set environment variable to show it 
-    // setting environment variable:
-    // 1.  $env:DEBUG="development:*"  // for windows if in powershell
-    //     prints detailed log for namespace development   for any specific debug you can use the name in place of *   like development:mongoose
-    // 2.  export DEBUG="development:*"  // for linux
-    // removing the environment variable to stop receiving these debug logs
-    // $env:DEBUG="" 
   })
-  .catch(function (err) {
-    console.error("Database connection error ❌", err); // Log the full error
+  .then(() => {
+    console.log("Connected to MongoDB Atlas ✅");
+    dbgr("Connected to database");
+  })
+  .catch((err) => {
+    console.error("Database connection error ❌", err);
     dbgr("Database connection error:", err);
   });
-
 
 module.exports = mongoose.connection;
