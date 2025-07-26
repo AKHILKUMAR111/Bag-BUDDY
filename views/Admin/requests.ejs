@@ -21,20 +21,31 @@
                 <th class="border p-4 text-left">Action</th>
             </tr>
         </thead>
-        <tbody>
-            <% requests.forEach(request => { %>
-                <tr>
-                    <td class="border p-4"><%= request.vendorName %></td>
-                    <td class="border p-4"><%= request.vendorEmail %></td>
-                    <td class="border p-4"><%= request.productName %></td>
-                    <td class="border p-4"><%= request.productPrice %></td>
-                    <td class="border p-4"><%= request.discount %>%</td>
-                    <td class="border p-4">
-                        <a href="/owners/approve-request/<%= request.requestId %>" class="bg-green-500 text-white px-4 py-2 rounded-lg">Approve</a>
-                    </td>
-                </tr>
-            <% }) %>
-        </tbody>
+       <tbody>
+  <% requests.forEach(request => { %>
+    <tr>
+      <td class="border p-4"><%= request.vendorName %></td>
+      <td class="border p-4"><%= request.vendorEmail %></td>
+      <td class="border p-4"><%= request.productName %></td>
+      <td class="border p-4">₹<%= request.productPrice %></td>
+      <td class="border p-4"><%= request.discount %>%</td>
+
+      <!-- ✅ New column for product image -->
+      <td class="border p-4">
+        <% if (request.imageUrl) { %>
+          <img src="<%= request.imageUrl %>" alt="Product Image" class="w-24 h-24 object-cover rounded shadow" />
+        <% } else { %>
+          <span class="text-gray-400 italic">No image</span>
+        <% } %>
+      </td>
+
+      <td class="border p-4">
+        <a href="/owners/approve-request/<%= request.requestId %>" class="bg-green-500 text-white px-4 py-2 rounded-lg">Approve</a>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+
     </table>
 </div>
 

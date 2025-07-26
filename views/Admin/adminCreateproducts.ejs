@@ -15,8 +15,9 @@
         <div class="mb-6">
           <h3 class="text-lg font-semibold mb-2">Product Details</h3>
           <div class="mb-4">
-            <label class="block mb-2 font-medium">Product Image</label>
-            <input name="image" type="file" class="py-2 px-4 rounded" value="Select File">
+            <label class="block text-sm font-medium text-gray-700">Product Image</label>
+        <input type="file" name="image" accept="image/*" required
+          class="w-full p-3 border border-gray-300 rounded-lg" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <input name="name" type="text" placeholder="Product Name" class="border p-2 rounded w-full">

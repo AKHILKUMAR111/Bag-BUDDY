@@ -1,17 +1,33 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../config/multer-config");
+
 const productModel = require("../models/product-model");
 const isLoggedInadmin = require("../middlewares/isLoggedinadmin");
 const isLoggedin = require("../middlewares/isLoggedin");
 const vendorModel = require("../models/vendor-model"); //for vendor verification
+const multer = require("multer");
+const path = require("path");
+
+// Temporary storage before sending to Cloudinary
+const cloudinary = require("../utils/cloudinary");
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+  },
+});
+
+const upload = multer({ storage });
+
 // Create Product Route
 router.post("/createproduct/admin", upload.single("image"), async function (req, res) {
   try {
-    const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
-
+    const { name, price, discount, bgcolor, panelcolor, textcolor, } = req.body;
+    const result = await cloudinary.uploader.upload(req.file.path, {
+           folder: "adminAdded", // optional folder name in cloudinary
+         });
+        
     await productModel.create({
-      image: req.file.buffer,
+      image: result.secure_url,
       name,
       price,
       discount,
@@ -29,11 +45,11 @@ router.post("/createproduct/admin", upload.single("image"), async function (req,
 
 router.post("/createproduct/vendor", upload.single("image"), async function (req, res) {
   try {
-    const { name, price, discount, bgcolor, panelcolor, textcolor, vendorId, requestId } = req.body;
+    const { name, price, discount, bgcolor, panelcolor, textcolor, vendorId, requestId ,imageUrl} = req.body;
 
     // Create the product
     await productModel.create({
-      image: req.file.buffer,
+      image: imageUrl,
       name,
       price,
       discount,
@@ -41,19 +57,25 @@ router.post("/createproduct/vendor", upload.single("image"), async function (req
       panelcolor,
       textcolor,
     });
-
+ console.log("hello")
     // ✅ Update vendor request status to "Approved"
+    console.log(vendorId)
+    console.log(requestId)
+
     if (vendorId && requestId) {
       const vendor = await vendorModel.findById(vendorId);
+      console.log("hello2")
       if (vendor) {
+        console.log("hello3")
         const request = vendor.requests.id(requestId);
         if (request) {
+          console.log("hello4")
           request.status = "Approved"; // ✅ Capitalized to match enum
           await vendor.save();
         }
       }
     }
-
+  console.log("hell")
     req.flash("success", "Vendor product created and request approved");
     res.redirect("/products/create");
   } catch (err) {
@@ -87,7 +109,7 @@ router.get("/create", isLoggedInadmin, function (req, res) {
 // **SEARCH FUNCTIONALITY**
 router.get("/search",isLoggedin, async (req, res) => {
 
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     res.set("Pragma", "no-cache");
     res.set("Expires", "0");
   

@@ -20,6 +20,9 @@ const vendorSchema = new mongoose.Schema({
             bgcolor: String,
             panelcolor: String,
             textcolor: String,
+            imageUrl: String,         // ✅ Added
+            imagePublicId: String,    // ✅ Added
+
             status: {
                 type: String,
                 enum: ["Pending", "Approved", "Rejected"],

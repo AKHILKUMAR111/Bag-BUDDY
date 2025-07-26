@@ -7,6 +7,21 @@ const {
     loginVendor,
     logoutVendor,
 }= require("../controllers/authController");
+const fs = require("fs");
+
+
+const multer = require("multer");
+const path = require("path");
+
+// Temporary storage before sending to Cloudinary
+const cloudinary = require("../utils/cloudinary");
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+  },
+});
+
+const upload = multer({ storage });
 
 
 
@@ -22,18 +37,23 @@ router.get("/vendor",function(req,res){
  res.render("Vendor/vender-login",{error,success,loggedin:false,admin:false,create:false,user:true});
 });
 
-router.post("/requestProduct", isLoggedinVendor, async (req, res) => {
+router.post("/requestProduct", isLoggedinVendor, upload.single("image"), async (req, res) => {
     try {
       // Find the vendor based on their ID
       const vendor = await vendorModel.findById(req.vendor._id);
-  
+
+        const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "vendorRequests", // optional folder name in cloudinary
+      });
       // Create the new product request object
-      const newRequest = {
+     const newRequest = {
         productName: req.body.name,
         productPrice: req.body.price,
         discount: req.body.discount,
         bgcolor: req.body.bgColor,
         panelcolor: req.body.panelColor,
+        imageUrl: result.secure_url, // cloudinary image URL
+        imagePublicId: result.public_id,
         textcolor: req.body.textColor,
       };
   

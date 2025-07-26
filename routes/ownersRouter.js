@@ -6,8 +6,8 @@ const ownerModel = require("../models/owner-model");  //used.. here to move out 
 const vendorModel = require("../models/vendor-model");  //for vendor verification
 
 const {
-  loginadmin,logoutadmin
-}= require("../controllers/authController");
+  loginadmin, logoutadmin
+} = require("../controllers/authController");
 
 console.log(process.env.NODE_ENV);
 const bcrypt = require("bcrypt");
@@ -15,39 +15,39 @@ const bcrypt = require("bcrypt");
 
 
 
-if(process.env.NODE_ENV=="development"){
-    router.post("/create",async function(req,res){
-      let owners = await ownerModel.find();
-      if(owners.length>0){
-          return res.status(500).send("Owner already exists");
-      }
-      let {fullname,email,password} = req.body;
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(password, salt);
-      let createdOwner=await ownerModel.create({
-        fullname ,
-       email ,
-       password:hash,
+if (process.env.NODE_ENV == "development") {
+  router.post("/create", async function (req, res) {
+    let owners = await ownerModel.find();
+    if (owners.length > 0) {
+      return res.status(500).send("Owner already exists");
+    }
+    let { fullname, email, password } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    let createdOwner = await ownerModel.create({
+      fullname,
+      email,
+      password: hash,
+    })
+      .then(function (owner) {
+        res.send(owner);
       })
-      .then(function(owner){
-          res.send(owner);
-      })    
-    });
+  });
 }
 
 
 
 
-router.get("/admin",function(req,res){
+router.get("/admin", function (req, res) {
 
 
-     let success = req.flash("success")
-    res.render("Admin/owner-login",{success,loggedin:false,admin:false,create:false,user:true});
+  let success = req.flash("success")
+  res.render("Admin/owner-login", { success, loggedin: false, admin: false, create: false, user: true });
 })
 
-router.post("/adminlogin",loginadmin);
+router.post("/adminlogin", loginadmin);
 
-router.get("/adminlogin",isLoggedInadmin,function(req,res){
+router.get("/adminlogin", isLoggedInadmin, function (req, res) {
   //send owner with it
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
   res.set("Pragma", "no-cache");
@@ -55,14 +55,14 @@ router.get("/adminlogin",isLoggedInadmin,function(req,res){
 
   // Check if the user is authenticated
   if (!req.cookies.admintoken) {
-      return res.redirect("/owners/admin");
+    return res.redirect("/owners/admin");
   }
-                let success = req.flash("success","welcome to cart")
-                res.render("Admin/admin",{loggedin:false,admin:true,success,create:false});
-   
+  let success = req.flash("success", "welcome to cart")
+  res.render("Admin/admin", { loggedin: false, admin: true, success, create: false });
+
 })
 
-router.get("/logout",logoutadmin);
+router.get("/logout", logoutadmin);
 
 //setting environment variable to development  
 //    $env:NODE_ENV=(press enter)>> "development"
@@ -83,7 +83,7 @@ router.post("/vendors/approve/:id", isLoggedInadmin, async (req, res) => {
     }
 
     vendor.isApproved = true;
-    
+
     await vendor.save();
 
     res.status(200).json({ message: "Vendor approved successfully." });
@@ -105,6 +105,7 @@ router.get('/product-requests', isLoggedInadmin, async (req, res) => {
     vendors.forEach(vendor => {
       vendor.requests.forEach(request => {
         // Only push requests with status "Pending"
+        console.log("Admin request image URL:", request.imageUrl);
         if (request.status === "Pending") {
           requests.push({
             vendorName: vendor.name,
@@ -116,7 +117,9 @@ router.get('/product-requests', isLoggedInadmin, async (req, res) => {
             bgcolor: request.bgcolor,
             panelcolor: request.panelcolor,
             textcolor: request.textcolor,
+            imageUrl: request.imageUrl, // ✅ Add this
           });
+
         }
       });
     });
@@ -129,33 +132,40 @@ router.get('/product-requests', isLoggedInadmin, async (req, res) => {
   }
 });
 
-  // Route to handle request approval
-  router.get('/approve-request/:requestId', isLoggedInadmin, async (req, res) => {
-    try {
-      // Find the vendor and their request
-      const vendor = await vendorModel.findOne({ "requests._id": req.params.requestId });
-      const request = vendor.requests.id(req.params.requestId);
-      let success = req.flash("Product approved");
-      // Render the product creation page with the request data pre-filled
-      res.render('Admin/vendorCreateproducts', {
-        productName: request.productName,
-        productPrice: request.productPrice,
-        discount: request.discount,
-        bgcolor: request.bgcolor,
-        panelcolor: request.panelcolor,
-        textcolor: request.textcolor,
-        vendorName: vendor.name, // Optional: If you want to show the vendor name
-        vendorEmail: vendor.email, // Optional: If you want to show the vendor email
-        success: success, loggedin: false, create: true, admin: true, vendorId: vendor._id, requestId: request._id  ,
-      });
-    } catch (err) {
-      console.error('Error approving request:', err);
-      res.status(500).send('Server error');
-    }
-  });
+// Route to handle request approval
+router.get('/approve-request/:requestId', isLoggedInadmin, async (req, res) => {
+  try {
+    // Find the vendor and their request
+    const vendor = await vendorModel.findOne({ "requests._id": req.params.requestId });
+    const request = vendor.requests.id(req.params.requestId);
+    let success = req.flash("Product approved");
+    // Render the product creation page with the request data pre-filled
+    res.render('Admin/vendorCreateproducts', {
+      productName: request.productName,
+      productPrice: request.productPrice,
+      discount: request.discount,
+      bgcolor: request.bgcolor,
+      panelcolor: request.panelcolor,
+      textcolor: request.textcolor,
+      vendorName: vendor.name,
+      vendorEmail: vendor.email,
+      success: success,
+      loggedin: false,
+      create: true,
+      admin: true,
+      vendorId: vendor._id,
+      requestId: request._id,
+      imageUrl: request.imageUrl, // ✅ Add this line
+    });
+
+  } catch (err) {
+    console.error('Error approving request:', err);
+    res.status(500).send('Server error');
+  }
+});
 
 
 
 
 
-module.exports= router;
+module.exports = router;
