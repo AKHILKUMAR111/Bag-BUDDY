@@ -138,7 +138,9 @@ router.get('/approve-request/:requestId', isLoggedInadmin, async (req, res) => {
     // Find the vendor and their request
     const vendor = await vendorModel.findOne({ "requests._id": req.params.requestId });
     const request = vendor.requests.id(req.params.requestId);
+
     let success = req.flash("Product approved");
+
     // Render the product creation page with the request data pre-filled
     res.render('Admin/vendorCreateproducts', {
       productName: request.productName,
@@ -155,7 +157,12 @@ router.get('/approve-request/:requestId', isLoggedInadmin, async (req, res) => {
       admin: true,
       vendorId: vendor._id,
       requestId: request._id,
-      imageUrl: request.imageUrl, // ✅ Add this line
+      imageUrl: request.imageUrl,
+      imagePublicId: request.imagePublicId || "",
+      brand: request.brand || "",
+      category: request.category || "",
+      description: request.description || "",
+      tags: request.tags || []
     });
 
   } catch (err) {
@@ -163,6 +170,7 @@ router.get('/approve-request/:requestId', isLoggedInadmin, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 
 

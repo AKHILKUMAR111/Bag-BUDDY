@@ -16,29 +16,48 @@
           <input type="hidden" name="vendorId" value="<%= vendorId %>">
           <input type="hidden" name="requestId" value="<%= requestId %>">
 
-
           <div class="mb-6">
             <h3 class="text-lg font-semibold mb-2">Product Details</h3>
-            <div class="mb-4">
-              <label class="block mb-2 font-medium">Product Image</label>
-              <% if (typeof imageUrl !=='undefined' && imageUrl) { %>
-                <div class="mb-4">
-                  <label class="block mb-2 font-medium">Vendor Uploaded Image</label>
-                  <img src="<%= imageUrl %>" alt="Vendor Image" class="max-w-xs max-h-64 object-contain rounded shadow">
-                  <input type="hidden" name="imageUrl" value="<%= imageUrl %>"> <!-- pass it to backend -->
+
+            <% if (typeof imageUrl !=='undefined' && imageUrl) { %>
+              <div class="mb-4">
+                <label class="block mb-2 font-medium">Vendor Uploaded Image</label>
+                <img src="<%= imageUrl %>" alt="Vendor Image" class="max-w-xs max-h-64 object-contain rounded shadow">
+                <input type="hidden" name="imageUrl" value="<%= imageUrl %>">
+              </div>
+              <% } %>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <input name="brand" type="text" value="<%= brand %>" placeholder="Brand Name"
+                    class="border p-2 rounded w-full">
+                  <input name="name" type="text" value="<%= productName %>" placeholder="Product Name"
+                    class="border p-2 rounded w-full">
+                  <input name="price" type="text" value="<%= productPrice %>" placeholder="Product Price"
+                    class="border p-2 rounded w-full">
+                  <input name="discount" type="text" value="<%= discount %>" placeholder="Discount Price"
+                    class="border p-2 rounded w-full">
                 </div>
-                <% } %>
-                 <!-- <h2>Replace the Vendor's uploaded image by Your's selected one</h2> 
-                  <input name="image" type="file" class="py-2 px-4 rounded" value="Select File"> -->
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <input name="name" type="text" value="<%= productName %>" placeholder="Product Name"
-                class="border p-2 rounded w-full">
-              <input name="price" type="text" value="<%= productPrice %>" placeholder="Product Price"
-                class="border p-2 rounded w-full">
-              <input name="discount" type="text" value="<%= discount %>" placeholder="Discount Price"
-                class="border p-2 rounded w-full">
-            </div>
+
+
+                <!-- ✅ New fields -->
+                <div class="mt-4">
+                  <label class="block mb-2 font-medium">Category</label>
+                  <input name="category" type="text"  value="<%= category %>" placeholder="Category (e.g. Travel, College, Office)"
+                    class="border p-2 rounded w-full">
+                </div>
+
+                <div class="mt-4">
+                  <label class="block mb-2 font-medium">Product Description</label>
+                  <textarea name="description" placeholder="Enter product description" rows="4"
+  class="border p-2 rounded w-full"><%= description %></textarea>
+
+                </div>
+
+                <div class="mt-4">
+                  <label class="block mb-2 font-medium">Tags (comma-separated)</label>
+                  <input name="tags" type="text" value="<%= tags %>"  placeholder="E.g. leather,handbag,stylish"
+                    class="border p-2 rounded w-full">
+                </div>
           </div>
 
           <div>
@@ -55,6 +74,7 @@
 
           <input class="px-5 py-2 rounded mt-3 bg-blue-500 text-white" type="submit" value="Create New Product">
         </form>
+
       </main>
     </div>
   </div>

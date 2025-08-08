@@ -13,6 +13,7 @@ const productsRouter = require("./routes/productsRouter");
 const usersRouter = require("./routes/usersRouter");
 const index =require("./routes/index");
 const vendorsRouter = require("./routes/vendorsRouter");  
+const paymentRoutes = require('./routes/payment');
 
 const db = require("./config/mongoose-connection");
 const user = require("./models/user-model");
@@ -42,6 +43,6 @@ app.use("/users",usersRouter);
 app.use("/products",productsRouter); 
 app.use("/",index);
 app.use("/vendors",vendorsRouter)
-
+app.use('/payment', paymentRoutes);
 
 app.listen(3000);

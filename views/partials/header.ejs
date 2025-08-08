@@ -7,48 +7,68 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
-<body class="font-['helvetica_now_display']">
-    <nav class="w-full flex justify-between px-5 py-3 items-center">
-        <h3 class="text-xl">Scatch</h3>
 
-       
+<body class="font-['helvetica_now_display'] bg-gray-50">
+    <nav class="w-full flex justify-between items-center px-6 py-4 shadow-md bg-white fixed top-0 z-50">
+        <h3 class="text-2xl font-bold tracking-wide text-blue-700">Bag <span class="text-black">BUDDY</span></h3>
 
-        <% var loggedin = typeof loggedin !=="undefined" ? loggedin : true %>
+        <% var loggedin=typeof loggedin !=="undefined" ? loggedin : true %>
         <% if(loggedin){ %>
-             <!-- Search Bar -->
-        <% if(!cart){%>
-            <form action="/products/search" method="GET" class="flex items-center gap-2">
-                <input type="text" name="query" placeholder="Search products..." 
-                    class="border border-gray-300 px-3 py-1 rounded-lg focus:outline-none focus:ring focus:ring-blue-200">
-                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded-lg">
-                    <i class="ri-search-line"></i>
-                </button>
-            </form>
-        <%}%>
-        <div class="flex gap-5">
-            <a href="/shop">Shop</a>
-            <a href="/cart">Cart</a>
-            <a href="">My Account</a>
-            <a class="text-red-500" href="/users/logout">Logout</a>
-        </div>
+
+            <% if(!cart){ %>
+            <!-- Search Bar -->
+            <div class="relative w-80">
+                <form action="/products/search" method="GET" class="flex items-center gap-2">
+                    <input type="text" name="query" id="searchInput" placeholder="Search products..."
+                        class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="ri-search-line"></i>
+                    </button>
+                </form>
+                <div id="suggestionsBox"
+                    class="absolute bg-white border rounded mt-1 w-full shadow-lg z-50 hidden"></div>
+            </div>
+            <% } %>
+
+            <div class="flex gap-6 items-center text-gray-700 font-medium">
+                <a href="/shop" class="hover:text-blue-600 transition">Shop</a>
+                <a href="/cart" class="hover:text-blue-600 transition">Cart</a>
+                <a href="#" class="hover:text-blue-600 transition">My Account</a>
+                <a href="/users/logout" class="text-red-500 hover:underline">Logout</a>
+            </div>
+
         <% } else if(admin && create){ %>
-        <div>
-            <a href="/owners/adminlogin">HOME</a>
-            <a class="text-red-500" href="/owners/logout">Logout</a>
-        </div>
-        <% } else if(admin ){ %>
-        <div>
-            <a class="text-red-500" href="/owners/logout">Logout</a>
-        </div>
-        <% } else if(user) {%>
-        <div>
-            <a href="/">User</a>
-        </div>
+            <div class="flex gap-6 items-center font-medium text-gray-700">
+                <a href="/owners/adminlogin" class="hover:text-blue-600 transition">HOME</a>
+                <a class="text-red-500 hover:underline" href="/owners/logout">Logout</a>
+            </div>
+
+        <% } else if(admin) { %>
+            <div class="flex gap-6 items-center font-medium text-gray-700">
+                <a class="text-red-500 hover:underline" href="/owners/logout">Logout</a>
+            </div>
+
+        <% } else if(user) { %>
+            <div class="flex gap-6 items-center font-medium text-gray-700">
+                <a href="/" class="hover:text-blue-600 transition">User</a>
+            </div>
+
         <% } else { %>
-        <div>
-            <a href="/owners/admin">Admin</a>
-            <a href="/vendors/vendor">Vender</a>
-        </div>
+            <div class="flex gap-6 items-center font-medium text-gray-700">
+                <a href="/owners/admin" class="hover:text-blue-600 transition">Admin</a>
+                <a href="/vendors/vendor" class="hover:text-blue-600 transition">Vendor</a>
+            </div>
         <% } %>
     </nav>
